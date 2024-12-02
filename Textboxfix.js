@@ -1,15 +1,18 @@
 /**
- * Creates a floating editor that mirrors content from the main editor.
+ * Provides a draggable editor that follows the user's viewport, solving the issue
+ * of the fact the editor box jumps back to the start when the user is typing. 
+ * This second box avoids that issue entirely
  */
 const initializeDynamicShadowBox = () => {
     let currentEditor = null;
 
-    // Create a floating editor that mirrors the main editor's content
+    // Using a separate floating div instead of position:sticky because we need
+    // it to remain accessible regardless of parent container overflow settings
     const shadowBox = document.createElement('div');
-    shadowBox.contentEditable = true; // Make the shadow box editable
+    shadowBox.contentEditable = true;
     shadowBox.style.cssText = `
         position: fixed;
-        bottom: 50px; /* Adjusted position */
+        bottom: 50px; /* Positioned above potential bottom navigation/toolbars */
         left: 10px;
         width: 300px;
         height: auto;
@@ -30,7 +33,7 @@ const initializeDynamicShadowBox = () => {
     `;
     document.body.appendChild(shadowBox);
 
-    // Implement drag functionality to allow repositioning the editor anywhere on screen
+    // Track mouse position relative to the box to maintain the same grab point during drag
     let isDragging = false;
     let offsetX = 0;
     let offsetY = 0;
@@ -43,13 +46,15 @@ const initializeDynamicShadowBox = () => {
     });
 
     document.addEventListener('mousemove', (event) => {
-        if (isDragging) {
-            const x = event.clientX - offsetX;
-            const y = event.clientY - offsetY;
-            shadowBox.style.left = `${x}px`;
-            shadowBox.style.top = `${y}px`;
-            shadowBox.style.bottom = 'auto'; // Remove bottom positioning for free movement
-        }
+        if (!isDragging) return;
+
+        // Constrain to viewport to prevent the editor from being dragged off-screen
+        const x = Math.max(0, Math.min(event.clientX - offsetX, window.innerWidth - shadowBox.offsetWidth));
+        const y = Math.max(0, Math.min(event.clientY - offsetY, window.innerHeight - shadowBox.offsetHeight));
+        
+        shadowBox.style.left = `${x}px`;
+        shadowBox.style.top = `${y}px`;
+        shadowBox.style.bottom = 'auto'; // Override initial bottom position to allow free movement
     });
 
     document.addEventListener('mouseup', () => {
@@ -60,58 +65,73 @@ const initializeDynamicShadowBox = () => {
     });
 
     /**
-     * Triggers synthetic input events to ensure content changes are detected
-     * by any external listeners or reactive frameworks
+     * Some frameworks require both input and keydown events to detect changes.
+     * This ensures compatibility across different event handling implementations.
      */
     const simulateTypingEvent = (element) => {
-        const inputEvent = new Event('input', { bubbles: true });
-        element.dispatchEvent(inputEvent);
-
-        const keyEvent = new KeyboardEvent('keydown', { bubbles: true, key: 'a' }); // Simulate any key
-        element.dispatchEvent(keyEvent);
+        if (!element) return;
+        
+        try {
+            const inputEvent = new Event('input', { bubbles: true });
+            element.dispatchEvent(inputEvent);
+            const keyEvent = new KeyboardEvent('keydown', { bubbles: true, key: 'a' });
+            element.dispatchEvent(keyEvent);
+        } catch (error) {
+            console.warn('Event simulation failed:', error);
+        }
     };
 
     /**
-     * Ensures changes in the floating editor are reflected in the main editor
-     * and triggers necessary events for change detection
+     * Changes in the floating editor need to trigger framework-specific change detection
+     * to ensure the main editor's state stays in sync with the application
      */
     const syncToEditor = () => {
-        if (currentEditor) {
-            currentEditor.textContent = shadowBox.textContent; // Sync shadow box content into the current box
-            simulateTypingEvent(currentEditor); // Trigger typing events to ensure detection
+        if (!currentEditor) return;
+        
+        try {
+            currentEditor.textContent = shadowBox.textContent;
+            simulateTypingEvent(currentEditor);
+        } catch (error) {
+            console.warn('Sync to editor failed:', error);
         }
     };
 
     /**
-     * Updates the floating editor when changes occur in the main editor
-     * to maintain content synchronization
+     * Mirror content to shadow box immediately on focus to prevent
+     * user confusion about which content they're editing
      */
     const syncToShadowBox = () => {
-        if (currentEditor) {
-            shadowBox.textContent = currentEditor.textContent; // Sync current box content into the shadow box
+        if (!currentEditor) return;
+        
+        try {
+            shadowBox.textContent = currentEditor.textContent;
+        } catch (error) {
+            console.warn('Sync to shadow box failed:', error);
         }
     };
 
-    // Track the currently active editor to ensure proper synchronization
+    // Only sync with elements that are explicitly marked as content editors
+    // to avoid interfering with other contenteditable elements on the page
     document.addEventListener('focusin', (event) => {
         const target = event.target;
+        if (!target) return;
 
-        // Check if the focused element is a valid contenteditable box
         if (target.matches('[data-testid="content-editor"][contenteditable="true"]')) {
-            currentEditor = target; // Set the currently focused editor
-            syncToShadowBox(); // Initialize shadow box with current editor's content
+            currentEditor = target;
+            syncToShadowBox();
         }
     });
 
-    // Maintain bidirectional sync between the floating and main editors
-    shadowBox.addEventListener('input', syncToEditor); // Shadow box updates current editor
+    // Maintain two-way binding to ensure content stays synchronized regardless
+    // of which editor the user is typing in
+    shadowBox.addEventListener('input', syncToEditor);
     document.addEventListener('input', (event) => {
         if (event.target === currentEditor) {
-            syncToShadowBox(); // Current editor updates shadow box
+            syncToShadowBox();
         }
     });
 
-    console.log("Floating editor initialized with bidirectional sync and drag functionality");
+    console.log("Floating editor initialized with improved bounds checking and error handling");
 };
 
 // Start the floating editor system
