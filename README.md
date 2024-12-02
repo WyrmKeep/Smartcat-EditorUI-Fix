@@ -1,29 +1,66 @@
-# SmartCat Editor Fix
+# SmartCat Editor Cursor Jump Fix
 
-A simple fix for SmartCat's editor cursor jumping issue where the cursor keeps jumping to the start of the text while typing.
+Resolve the annoying cursor jumping issue in SmartCat's editor with this simple, user-friendly script. Improve your productivity and streamline your editing experience.
+
+---
 
 ## The Problem
-When typing in SmartCat's editor, the cursor randomly jumps back to the start of the text, making it impossible to type normally.
+In SmartCat's editor, the cursor frequently jumps to the beginning of the text while typing, disrupting your workflow and making it difficult to type normally.
+
+---
 
 ## The Solution
-This script creates a floating editor box that syncs with SmartCat's original editor but doesn't have the cursor jumping issue. You can:
-- Type normally without cursor jumps
-- Drag the editor box anywhere on your screen
-- Keep working as usual with all SmartCat features
+This script creates a floating editor box that:
+- Syncs seamlessly with SmartCat's original editor.
+- Eliminates the cursor jumping issue.
+- Allows you to type without interruptions.
+- Can be dragged and repositioned anywhere on your screen.
+
+You can continue using all SmartCat features while editing smoothly.
+
+---
+
+## Key Features
+- **Syncs with SmartCat:** Edits in the floating editor are instantly reflected in SmartCat.
+- **Drag-and-Drop Interface:** Position the editor wherever it suits you best.
+- **Viewport-Sticky:** The editor remains within your browser viewport.
+- **SmartCat-Compatible:** Fully supports SmartCat's validation, formatting, and other functionalities.
+- **Browser Support:** Tested and confirmed to work on Google Chrome.
+
+---
 
 ## How to Use
-1. Open SmartCat in your browser
-2. Press F12 to open Developer Tools
-3. Click on the "Console" tab
-4. Copy the entire content of `Textboxfix.js`
-5. Paste it into the console and press Enter
-6. Start editing - a floating editor will appear when you click any editable field
+Follow these simple steps to fix the cursor jumping issue:
 
-Note: You'll need to do this each time you refresh the page or open a new SmartCat tab.
+1. Open SmartCat in your browser.
+2. Press `F12` to open the Developer Tools.
+3. Navigate to the "Console" tab.
+4. Copy the content of `Textboxfix.js`.
+5. Paste it into the console and press `Enter`.
+6. Click any editable field, and a floating editor box will appear.
 
-## Notes
-- The floating editor stays in sync with SmartCat's original editor
-- You can drag it anywhere on your screen
-- It will stay within your viewport
-- Works with SmartCat's validation and formatting
-- Currently only tested on Google Chrome
+That's it! You can now type without cursor interruptions.
+
+### Note:
+You’ll need to repeat these steps each time you refresh the page or open a new SmartCat tab.
+
+---
+
+## Benefits
+- **Increased Productivity:** Focus on your work without being disrupted by cursor jumps.
+- **Ease of Use:** No complicated installations or extensions required.
+- **Customizable Workflow:** Reposition the floating editor to suit your preference.
+
+---
+
+## Requirements
+- Browser: Google Chrome (tested)
+- Basic familiarity with browser Developer Tools
+
+---
+
+## Support
+This script is currently in beta and has been tested on Google Chrome. If you encounter any issues or have suggestions for improvement, feel free to [create an issue](https://github.com/your-repo/smartcat-editor-fix/issues) or submit a pull request.
+
+---
+
